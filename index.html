@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IFT401 Stock App</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="container row">
+      <div class="brand">📈 IFT401 Stock App</div>
+      <nav class="row">
+        <a class="btn" href="#/login">Login</a>
+        <a class="btn" href="#/signup">Sign Up</a>
+        <a class="btn" href="#/summary">Dashboard</a>
+      </nav>
+      <div class="spacer"></div>
+      <span class="pill">
+        <span id="online-dot" class="dot"></span>
+        <span id="online-label">Online</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="view" class="grid"></div>
+  </main>
+
+  <footer>
+    <div class="container row">
+      <small class="muted">© <span id="year"></span> Group 22 • Educational prototype</small>
+      <div class="spacer"></div>
+      <small class="muted">Build: HTML/CSS/JS (no deps)</small>
+    </div>
+  </footer>
+
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
