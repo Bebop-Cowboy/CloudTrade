@@ -1,4 +1,6 @@
 import { $, el, store, updateOnline } from "./utils.js";
+import { polyPrev } from "./utils.js";
+
 
 const routes = {};
 function route(path, view) { routes[path] = view; }
@@ -57,3 +59,19 @@ route("/login", async () => {
   updateOnline();
   if (!location.hash) location.hash = "/login";
 })();
+
+async function loadSummary() {
+  try {
+    const data = await polyPrev("AAPL");
+    const r = data.results?.[0];
+    document.querySelector("#summary").innerHTML = r
+      ? `<div class="card">
+           <h3>${data.ticker || "AAPL"}</h3>
+           <p>O:${r.o} H:${r.h} L:${r.l} C:${r.c} Vol:${r.v}</p>
+           <small>${new Date(r.t).toLocaleString()}</small>
+         </div>`
+      : "<em>No data</em>";
+  } catch (e) {
+    document.querySelector("#summary").textContent = e.message;
+  }
+}

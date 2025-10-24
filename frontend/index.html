@@ -1,32 +1,97 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cloud Trade</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="description" content="Bare-bones single-file HTML framework for a stock trading app (login/signup + dashboard with Summary, News, Search & Trade, Profile, Settings)." />
+  <style>
+    :root {
+      --bg: #0c0f17; --panel: #11162a; --panel-2: #0f1424; --text: #e8ebf0; --muted: #9aa3b2; --accent: #58a6ff;
+      --success:#2ecc71; --warning:#f1c40f; --danger:#e74c3c; --radius: 14px; --shadow: 0 8px 28px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);background:radial-gradient(1200px 800px at 120% -10%, #1a2039, var(--bg));}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Topbar */
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(17,22,42,.9),rgba(17,22,42,.55));backdrop-filter:saturate(130%) blur(6px);border-bottom:1px solid rgba(255,255,255,.06)}
+    .container{max-width:1200px;margin:0 auto;padding:14px 18px}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .brand{font-weight:800;letter-spacing:.3px}
+    .spacer{flex:1}
+    .btn{border:1px solid rgba(255,255,255,.16);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer}
+    .btn:hover{border-color:rgba(255,255,255,.28)}
+    .btn.primary{border-color:rgba(88,166,255,.55);background:linear-gradient(180deg,rgba(88,166,255,.28),rgba(88,166,255,.12))}
+
+    /* Layout */
+    main{padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .col-12{grid-column:span 12}
+    @media (min-width: 920px){.col-3{grid-column:span 3}.col-9{grid-column:span 9}}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+    .muted{color:var(--muted)}
+
+    /* Dashboard shell */
+    .dash{display:grid;grid-template-columns: 260px 1fr;gap:16px}
+    .side{position:sticky;top:76px;height:calc(100dvh - 92px)}
+    .sidebar{height:100%;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px}
+    .navlink{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--text);border:1px solid transparent}
+    .navlink.active,.navlink:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+
+    /* Tables */
+    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+    th,td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+    th{text-align:left;background:rgba(255,255,255,.06)}
+    tr:last-child td{border-bottom:none}
+
+    /* Forms */
+    label{display:block;margin:8px 0 6px}
+    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:#0f1529;color:var(--text)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .help{font-size:.9em;color:var(--muted)}
+
+    /* Badges */
+    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.16);padding:6px 10px;border-radius:999px}
+    .dot{width:8px;height:8px;border-radius:50%}
+
+    footer{position:sticky;bottom:0;background:linear-gradient(0deg,rgba(17,22,42,.9),rgba(17,22,42,.35));border-top:1px solid rgba(255,255,255,.06)}
+  </style>
+
+  <!-- Backend/Proxy config (edit if your backend is elsewhere) -->
+  <script>
+    window.API_BASE = window.API_BASE || "http://localhost:8000";
+    window.POLY_PROXY_BASE = window.POLY_PROXY_BASE || (window.API_BASE + "/poly");
+  </script>
+
 </head>
 <body>
+  <!-- Topbar -->
   <header>
     <div class="container row">
       <div class="brand">📈 Cloud Trade</div>
-      <nav class="row">
+      <nav class="row" aria-label="Top">
         <a class="btn" href="#/login">Login</a>
         <a class="btn" href="#/signup">Sign Up</a>
         <a class="btn" href="#/summary">Dashboard</a>
       </nav>
       <div class="spacer"></div>
-      <span class="pill">
-        <span id="online-dot" class="dot"></span>
-        <span id="online-label">Online</span>
-      </span>
+      <span class="pill"><span id="online-dot" class="dot" style="background:var(--success)"></span><span id="online-label">Online</span></span>
     </div>
   </header>
 
+  <!-- Main viewport -->
   <main class="container">
-    <div id="view" class="grid"></div>
+    <div id="view" class="grid">
+      <!-- Routed views render here -->
+    </div>
   </main>
 
+  <!-- Footer -->
   <footer>
     <div class="container row">
       <small class="muted">© <span id="year"></span> Group 22 • Educational prototype</small>
@@ -35,12 +100,409 @@
     </div>
   </footer>
 
-  <script src="js/utils.js"></script>
-  <script src="js/app.js"></script>
-  <script>
-  window.API_BASE = "http://localhost:8000";
-  window.POLY_PROXY_BASE = window.API_BASE + "/poly";
-  </script>
+<script>
+  /*******************
+   * Tiny utilities  *
+   *******************/
+  /*******************
+   * Polygon helpers *
+   *******************/
+  async function polyPrev(ticker) {
+    const base = window.POLY_PROXY_BASE || "/poly";
+    const url = `${base}/prev?ticker=${encodeURIComponent(ticker)}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+  async function quote(ticker) {
+    const data = await polyPrev(ticker);
+    const r = data?.results?.[0];
+    if (!r) return null;
+    return { ticker: (data.ticker || ticker).toUpperCase(), o: r.o, h: r.h, l: r.l, c: r.c, v: r.v, t: r.t };
+  }
+  async function populateWatchlist(symbols) {
+    const tbody = $('#wl');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="3" class="muted">Loading…</td></tr>';
+    try {
+      const rows = await Promise.all(symbols.map(async (s) => {
+        try {
+          const q = await quote(s);
+          if (!q) return `<tr><td>${s}</td><td class="muted">n/a</td><td class="muted">–</td></tr>`;
+          const delta = q.c - q.o;
+          const pct = q.o ? ((delta / q.o) * 100).toFixed(2) : '0.00';
+          const sign = delta >= 0 ? '+' : '';
+          return `<tr><td>${q.ticker}</td><td>$${q.c.toFixed(2)}</td><td>${sign}${pct}%</td></tr>`;
+        } catch (e) {
+          return `<tr><td>${s}</td><td class="muted">error</td><td class="muted">–</td></tr>`;
+        }
+      }));
+      tbody.innerHTML = rows.join('');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="3" class="muted">${e.message || e}</td></tr>`;
+    }
+  }
 
+  const $ = (s, r=document)=>r.querySelector(s);
+  const el = (tag, attrs={}, html='') => Object.assign(document.createElement(tag), attrs, html?{innerHTML:html}:{})
+  const store = { get:k=>JSON.parse(localStorage.getItem(k)||'null'), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+  const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+
+  /*******************
+   * Hash Router     *
+   *******************/
+  const routes = {};
+  function route(path, view){ routes[path] = view }
+  async function render(){
+    const hash = location.hash.replace('#','') || '/login';
+    const view = routes[hash] || routes['/login'];
+    const mount = $('#view');
+    mount.innerHTML = '';
+    mount.appendChild(await view());
+    // highlight active link (sidebar + topbar)
+    document.querySelectorAll('.navlink').forEach(a=>a.classList.remove('active'));
+    document.querySelectorAll(`[href="#${hash}"]`).forEach(a=>a.classList.add('active'));
+  }
+  addEventListener('hashchange', render);
+  addEventListener('load', render);
+
+  /*******************
+   * Shared pieces   *
+   *******************/
+  function dashboardShell(content){
+    const wrap = el('div', {className:'col-12'});
+    wrap.innerHTML = `
+      <div class="dash">
+        <aside class="side">
+          <nav class="sidebar" aria-label="Dashboard">
+            <a class="navlink" href="#/summary">Summary</a>
+            <a class="navlink" href="#/news">News</a>
+            <a class="navlink" href="#/trade">Search & Trade</a>
+            <a class="navlink" href="#/profile">Profile</a>
+            <a class="navlink" href="#/settings">Settings</a>
+          </nav>
+        </aside>
+        <section>${content}</section>
+      </div>`;
+    return wrap;
+  }
+
+  /*******************
+   * Views           *
+   *******************/
+  // Login (Page i)
+  route('/login', async ()=>{
+    const name = store.get('name')||'';
+    const card = `
+      <div class="col-12 col-9">
+        <div class="card">
+          <h1>Welcome back</h1>
+          <p class="muted">Sign in to continue.</p>
+          <label for="login-user">Username or Email</label>
+          <input id="login-user" placeholder="you@example.com" value="${name||''}" />
+          <label for="login-pass">Password</label>
+          <input id="login-pass" type="password" placeholder="••••••••" />
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="login-btn">Sign In</button>
+            <a class="btn" href="#/signup">Create an account</a>
+          </div>
+        </div>
+      </div>`;
+    const wrap = el('div', {className:'col-12'}, card);
+    setTimeout(()=>$('#login-user')?.focus(),0);
+    wrap.querySelector('#login-btn').addEventListener('click',()=>{ location.hash = '/summary' });
+    return wrap;
+  });
+
+  // Sign Up (Page ii)
+  route('/signup', async ()=>{
+    const view = el('div', {className:'col-12 col-9'});
+    view.innerHTML = `
+      <div class="card">
+        <h1>Create your account</h1>
+        <p class="muted">Basic personal and funding info for simulated trading.</p>
+        <div class="form-row">
+          <div>
+            <label for="su-name">Full name</label>
+            <input id="su-name" placeholder="Jane Doe" />
+          </div>
+          <div>
+            <label for="su-user">Username</label>
+            <input id="su-user" placeholder="janedoe" />
+          </div>
+        </div>
+        <label for="su-address">Address</label>
+        <input id="su-address" placeholder="123 Market St, City, ST" />
+        <div class="form-row">
+          <div>
+            <label for="su-bank">Bank / Funding Source</label>
+            <input id="su-bank" placeholder="Bank name (demo)" />
+            <p class="help">Demo only — do not enter real banking data.</p>
+          </div>
+          <div>
+            <label for="su-acct">Account # (masked)</label>
+            <input id="su-acct" placeholder="**** **** 1234" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="su-pass">Password</label>
+            <input id="su-pass" type="password" placeholder="Create a strong password" />
+          </div>
+          <div>
+            <label for="su-pass2">Confirm password</label>
+            <input id="su-pass2" type="password" placeholder="Repeat password" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="signup-btn">Sign Up</button>
+          <a class="btn" href="#/login">Back to Login</a>
+        </div>
+      </div>`;
+    view.querySelector('#signup-btn').addEventListener('click',()=>{ store.set('name',$('#su-name').value.trim()); location.hash='/summary' });
+    return view;
+  });
+
+  // Summary (Page 1)
+  route('/summary', async ()=>{
+    const content = `
+      <div class="grid">
+        <div class="col-12">
+          <div class="card"><h2>Account Summary</h2>
+            <div class="row">
+              <div class="pill"><span class="dot" style="background:var(--success)"></span> Equity: $<span id="eq">25,000</span></div>
+              <div class="pill"><span class="dot" style="background:var(--warning)"></span> Buying Power: $<span id="bp">10,000</span></div>
+              <div class="pill"><span class="dot" style="background:var(--accent)"></span> Positions: <span id="pos-count">3</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-3"><div class="card"><h3>Watchlist</h3>
+          <table><thead><tr><th>Symbol</th><th>Price</th><th>Δ</th></tr></thead>
+            <tbody id="wl"><tr><td>AAPL</td><td>190.12</td><td>+0.8%</td></tr><tr><td>MSFT</td><td>418.30</td><td>-0.2%</td></tr><tr><td>NVDA</td><td>121.55</td><td>+1.3%</td></tr></tbody>
+          </table>
+        </div></div>
+        <div class="col-12 col-9"><div class="card"><h3>Portfolio Chart</h3>
+          <div id="chart-portfolio" style="height:260px;background:var(--panel-2);border-radius:12px;border:1px solid rgba(255,255,255,.06);display:grid;place-items:center">
+            <span class="muted">(Placeholder chart area)</span>
+          </div>
+        </div></div>
+        <div class="col-12"><div class="card"><h3>Recent Activity</h3>
+          <table>
+            <thead><tr><th>Time</th><th>Action</th><th>Symbol</th><th>Qty</th><th>Price</th></tr></thead>
+            <tbody>
+              <tr><td>Today 10:12</td><td>Buy</td><td>AAPL</td><td>10</td><td>$189.90</td></tr>
+              <tr><td>Yesterday</td><td>Sell</td><td>TSLA</td><td>5</td><td>$248.10</td></tr>
+            </tbody>
+          </table>
+        </div></div>
+      </div>`;
+    const shell = dashboardShell(content);
+    // LIVE: replace watchlist with Polygon prev-day prices
+    populateWatchlist(['AAPL','MSFT','NVDA']);
+    return shell;
+  });
+
+  // News (Page 2)
+  route('/news', async ()=>{
+    const content = `
+      <div class="grid">
+        <div class="col-12 col-9">
+          <div class="card">
+            <h2>Market News</h2>
+            <p class="muted">Placeholder list – wire up to your news source/API later.</p>
+            <table>
+              <thead><tr><th>Headline</th><th>Source</th><th>Time</th></tr></thead>
+              <tbody id="news-list">
+                <tr><td>Futures mixed as investors eye jobs data</td><td>Reuters</td><td>1h</td></tr>
+                <tr><td>Chipmakers rally on AI server demand outlook</td><td>Bloomberg</td><td>2h</td></tr>
+                <tr><td>Energy stocks advance with crude above $85</td><td>WSJ</td><td>3h</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-12 col-3">
+          <div class="card">
+            <h3>Trending Tickers</h3>
+            <ul class="muted" id="trending">
+              <li>TSLA • AAPL • NVDA</li>
+              <li>SPY • QQQ • AMD</li>
+              <li>BTC • ETH</li>
+            </ul>
+          </div>
+        </div>
+      </div>`;
+    const shell = dashboardShell(content);
+    // LIVE: replace watchlist with Polygon prev-day prices
+    populateWatchlist(['AAPL','MSFT','NVDA']);
+    return shell;
+  });
+
+  // Search & Trade (Page 3)
+  route('/trade', async ()=>{
+    const content = `
+      <div class="grid">
+        <div class="col-12 col-3">
+          <div class="card">
+            <h3>Search</h3>
+            <label for="q">Symbol or Company</label>
+            <input id="q" placeholder="e.g., AAPL" />
+            <div class="row" style="margin-top:10px"><button class="btn primary" id="search-btn">Search</button></div>
+            <p class="help">Results will populate to the right (Page 3‑1 behavior).</p>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h3>Selected Stock</h3>
+            <div id="stock-mini">Pick a symbol to load summary…</div>
+          </div>
+        </div>
+        <div class="col-12 col-9">
+          <div class="card">
+            <h3>Results</h3>
+            <table>
+              <thead><tr><th>Symbol</th><th>Name</th><th>Price</th><th>Action</th></tr></thead>
+              <tbody id="results">
+                <tr><td>AAPL</td><td>Apple Inc.</td><td>$190.12</td><td>
+                  <div class="row">
+                    <button class="btn" data-sym="AAPL">View</button>
+                    <button class="btn" data-buy="AAPL">Buy</button>
+                    <button class="btn" data-sell="AAPL">Sell</button>
+                  </div>
+                </td></tr>
+                <tr><td>MSFT</td><td>Microsoft Corp.</td><td>$418.30</td><td>
+                  <div class="row">
+                    <button class="btn" data-sym="MSFT">View</button>
+                    <button class="btn" data-buy="MSFT">Buy</button>
+                    <button class="btn" data-sell="MSFT">Sell</button>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h3>Chart & Details</h3>
+            <div id="chart-stock" style="height:260px;background:var(--panel-2);border-radius:12px;border:1px solid rgba(255,255,255,.06);display:grid;place-items:center">
+              <span class="muted">(Placeholder stock chart)</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    const shell = dashboardShell(content);
+    // Demo interactions
+    shell.querySelectorAll('[data-sym]').forEach(btn=>btn.addEventListener('click',e=>{
+      const sym = e.currentTarget.getAttribute('data-sym');
+      $('#stock-mini', shell).textContent = `${sym} • Demo summary • 52W: H $220 / L $140`;
+    }));
+    shell.querySelectorAll('[data-buy],[data-sell]').forEach(btn=>btn.addEventListener('click',e=>{
+      const sym = e.currentTarget.getAttribute('data-buy')||e.currentTarget.getAttribute('data-sell');
+      alert(`(Demo) ${e.currentTarget.hasAttribute('data-buy')?'Buy':'Sell'} ${sym}`);
+    }));
+    shell.querySelector('#search-btn').addEventListener('click',async ()=>{
+      const q = $('#q', shell).value.trim().toUpperCase();
+      if(!q) return;
+      $('#results', shell).innerHTML = `<tr><td colspan='4' class='muted'>Loading…</td></tr>`;
+      try {
+        const data = await quote(q);
+        const price = data ? `$${Number(data.c).toFixed(2)}` : 'n/a';
+        $('#results', shell).innerHTML = `<tr><td>${q}</td><td>—</td><td>${price}</td><td>
+          <div class='row'><button class='btn' data-sym='${q}'>View</button><button class='btn' data-buy='${q}'>Buy</button><button class='btn' data-sell='${q}'>Sell</button></div></td></tr>`;
+      } catch (e) {
+        $('#results', shell).innerHTML = `<tr><td colspan='4' class='muted'>${e.message || e}</td></tr>`;
+      }
+    });
+    return shell;
+  });
+
+  // Profile (Page 4)
+  route('/profile', async ()=>{
+    const content = `
+      <div class="grid">
+        <div class="col-12 col-6"><div class="card">
+          <h2>Account Info</h2>
+          <label for="p-name">Display Name</label>
+          <input id="p-name" placeholder="Your name" value="${store.get('name')||''}" />
+          <label for="p-pref">Trading Preferences</label>
+          <select id="p-pref">
+            <option>Long-term / ETFs</option>
+            <option>Day Trading</option>
+            <option>Penny Stocks</option>
+            <option>Crypto</option>
+          </select>
+          <div class="row" style="margin-top:12px"><button class="btn primary" id="save-prof">Save</button></div>
+        </div></div>
+        <div class="col-12 col-6"><div class="card">
+          <h2>App Preferences</h2>
+          <label for="theme">Theme</label>
+          <select id="theme"><option>Dark</option><option>Light</option></select>
+          <label for="currency">Currency</label>
+          <select id="currency"><option>USD</option><option>EUR</option><option>KRW</option></select>
+        </div></div>
+      </div>`;
+    const shell = dashboardShell(content);
+    shell.querySelector('#save-prof').addEventListener('click',()=>{
+      store.set('name', $('#p-name', shell).value.trim());
+      alert('(Demo) Profile saved');
+    });
+    return shell;
+  });
+
+  // Settings (Page 5)
+  route('/settings', async ()=>{
+    const content = `
+      <div class="grid">
+        <div class="col-12 col-9">
+          <div class="card">
+            <h2>Security & Funding</h2>
+            <div class="form-row">
+              <div>
+                <label for="set-user">Username</label>
+                <input id="set-user" placeholder="username" />
+              </div>
+              <div>
+                <label for="set-email">Email</label>
+                <input id="set-email" placeholder="you@example.com" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="set-pass">New Password</label>
+                <input id="set-pass" type="password" placeholder="••••••••" />
+              </div>
+              <div>
+                <label for="set-pass2">Confirm</label>
+                <input id="set-pass2" type="password" placeholder="••••••••" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="set-bank">Bank (demo)</label>
+                <input id="set-bank" placeholder="Sample Bank" />
+              </div>
+              <div>
+                <label for="set-acct">Account # (masked)</label>
+                <input id="set-acct" placeholder="**** **** 4321" />
+              </div>
+            </div>
+            <div class="row" style="margin-top:12px"><button class="btn primary">Save Settings</button></div>
+          </div>
+        </div>
+      </div>`;
+    const shell = dashboardShell(content);
+    // LIVE: replace watchlist with Polygon prev-day prices
+    populateWatchlist(['AAPL','MSFT','NVDA']);
+    return shell;
+  });
+
+  /*******************
+   * Online status    *
+   *******************/
+  function updateOnline(){
+    const dot = $('#online-dot'); const label = $('#online-label');
+    const ok = navigator.onLine; dot.style.background = ok? 'var(--success)' : 'var(--danger)'; label.textContent = ok? 'Online' : 'Offline';
+  }
+  addEventListener('online', updateOnline);
+  addEventListener('offline', updateOnline);
+
+  // boot
+  (function(){ $('#year').textContent = new Date().getFullYear(); updateOnline(); if(!location.hash) location.hash = '/login'; })();
+</script>
 </body>
 </html>
