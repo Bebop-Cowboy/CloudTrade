@@ -1,4 +1,4 @@
-# IFT401 Stock App (Group 22)
+# Cloud Trade (Group 22)
 Educational stock-trading simulation built with pure HTML, CSS, and JS.
 
 ## Run Locally
