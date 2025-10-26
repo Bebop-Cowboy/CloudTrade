@@ -1,21 +1,17 @@
 
 import os
-import asyncio
-from typing import Optional
+# ------- Set env defaults BEFORE importing trading_backend --------
+os.environ.setdefault("DATABASE_URL", os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./trading.db"))
+POLY_API_KEY = os.getenv("POLY_API_KEY", "")
+ALLOW_ORIGIN = os.getenv("CORS_ORIGIN", "*")
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 
-# Import the provided async trading backend (SQLAlchemy models & functions)
+# Now safe to import; trading_backend will read DATABASE_URL we've set
 import trading_backend as tb
-
-# ----------- Config -----------
-# Simplest: default to SQLite file (no MySQL needed). Override via env var if desired.
-os.environ.setdefault("DATABASE_URL", os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./trading.db"))
-POLY_API_KEY = os.getenv("POLY_API_KEY", "")
-ALLOW_ORIGIN = os.getenv("CORS_ORIGIN", "*")
 
 app = FastAPI(title="IFT401 Trading API", version="1.0")
 
@@ -27,7 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ----------- Models -----------
 class CreateUserIn(BaseModel):
     full_name: str
     username: str
@@ -46,63 +41,44 @@ class PlaceOrderIn(BaseModel):
     user_id: int
     ticker: str
     quantity: float
-    side: str  # "buy" | "sell"
-    order_type: Optional[str] = "market"  # "market" | "limit"
-    price: Optional[float] = None
+    side: str
+    order_type: str = "market"
+    price: float | None = None
 
 class SimPriceIn(BaseModel):
     ticker: str
     new_price: float
 
-# ----------- Startup -----------
 @app.on_event("startup")
 async def _startup():
-    # Create tables if they don't exist (idempotent)
     await tb.init_db()
 
 @app.get("/health")
 async def health():
     return {"ok": True}
 
-# ----------- Users / Cash -----------
 @app.post("/users")
 async def create_user(body: CreateUserIn):
-    try:
-        return await tb.create_user(**body.dict())
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return await tb.create_user(**body.dict())
 
 @app.get("/cash/{user_id}")
 async def get_cash(user_id: int):
-    try:
-        bal = await tb.get_cash_balance(user_id)
-        return {"user_id": user_id, "balance": bal}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    bal = await tb.get_cash_balance(user_id)
+    return {"user_id": user_id, "balance": bal}
 
 @app.post("/cash/{user_id}/deposit")
 async def deposit(user_id: int, body: AmountIn):
-    try:
-        bal = await tb.deposit_cash(user_id, body.amount)
-        return {"user_id": user_id, "balance": bal}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    bal = await tb.deposit_cash(user_id, body.amount)
+    return {"user_id": user_id, "balance": bal}
 
 @app.post("/cash/{user_id}/withdraw")
 async def withdraw(user_id: int, body: AmountIn):
-    try:
-        bal = await tb.withdraw_cash(user_id, body.amount)
-        return {"user_id": user_id, "balance": bal}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    bal = await tb.withdraw_cash(user_id, body.amount)
+    return {"user_id": user_id, "balance": bal}
 
-# ----------- Stocks -----------
 @app.post("/stocks")
 async def create_stock(body: CreateStockIn):
-    try:
-        return await tb.create_stock(**body.dict())
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return await tb.create_stock(**body.dict())
 
 @app.get("/stocks")
 async def list_stocks():
@@ -117,41 +93,24 @@ async def get_stock(ticker: str):
 
 @app.post("/stocks/sim-price")
 async def simulate_price(body: SimPriceIn):
-    try:
-        return await tb.simulate_market_price(body.ticker, body.new_price)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return await tb.simulate_market_price(body.ticker, body.new_price)
 
-# ----------- Orders -----------
 @app.post("/orders")
 async def place_order(body: PlaceOrderIn):
-    try:
-        return await tb.place_order(**body.dict())
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return await tb.place_order(**body.dict())
 
 @app.get("/orders")
-async def list_orders(user_id: Optional[int] = None, status: Optional[str] = None):
-    try:
-        return await tb.list_orders(user_id=user_id, status=status)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+async def list_orders(user_id: int | None = None, status: str | None = None):
+    return await tb.list_orders(user_id=user_id, status=status)
 
 @app.get("/portfolio/{user_id}")
 async def portfolio(user_id: int):
-    try:
-        return await tb.get_portfolio(user_id)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return await tb.get_portfolio(user_id)
 
 @app.get("/transactions")
-async def transactions(user_id: Optional[int] = None):
-    try:
-        return await tb.list_transactions(user_id=user_id)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+async def transactions(user_id: int | None = None):
+    return await tb.list_transactions(user_id=user_id)
 
-# ----------- Polygon proxy (prev day OHLC) -----------
 @app.get("/poly/prev")
 async def poly_prev(ticker: str = Query(..., description="Stock ticker symbol")):
     if not POLY_API_KEY:
