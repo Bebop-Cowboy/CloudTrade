@@ -1,0 +1,63 @@
+
+body {
+  margin:0;
+  padding:0;
+  background: radial-gradient(circle at 30% 20%, #1b253a, #0d1117 80%);
+  font-family: system-ui;
+  color:white;
+}
+
+.glass {
+  backdrop-filter: blur(18px) saturate(180%);
+  background: rgba(255,255,255,0.08);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.15);
+  padding:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+}
+
+.sidebar {
+  width:240px;
+  height:100vh;
+  position:fixed;
+  top:0; left:0;
+  padding:20px;
+}
+
+.navlink {
+  display:block;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  cursor:pointer;
+}
+.navlink:hover {
+  background:rgba(255,255,255,0.15);
+}
+.active {
+  background:rgba(255,255,255,0.22);
+}
+
+.main {
+  margin-left:260px;
+  padding:30px;
+}
+button {
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:#58a6ff;
+  color:white;
+  cursor:pointer;
+}
+input {
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.1);
+  color:white;
+}
+table { width:100%; border-collapse:collapse; margin-top:20px; }
+th,td { padding:12px; border-bottom:1px solid rgba(255,255,255,0.2); }
