@@ -1,2 +1,1 @@
-# CloudTrade Glass UI Version
-LocalStorage Only
+CloudTrade Glass UI with Portfolio Placeholder
