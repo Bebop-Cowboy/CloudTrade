@@ -1,1 +1,5 @@
-/* glass UI and portfolio CSS will be inserted here */
+body{background:#0d1117;color:white;font-family:system-ui;margin:0;}
+.glass{padding:20px;margin:20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border-radius:14px;}
+.sidebar{position:fixed;top:0;left:0;width:200px;height:100vh;padding:20px;}
+.navlink{padding:10px;cursor:pointer;}
+.main{margin-left:220px;padding:20px;}
